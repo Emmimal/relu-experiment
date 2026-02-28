@@ -10,6 +10,9 @@ Produces:
 """
 
 import os
+import sys
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 import torch
 import torch.nn as nn
 import numpy as np
@@ -96,7 +99,7 @@ def _print_norm_snapshot(epoch: int, grad_log: dict) -> None:
 
     print(f"\n  Epoch {epoch} — Gradient Norms")
     print(f"  {'Layer':<8} {'ReLU':<14} {'Linear':<14} {'Ratio (ReLU/Lin)'}")
-    print("  " + "─" * 50)
+    print("  " + "-" * 50)
     for l in LAYER_NAMES:
         r = relu_e.get(l, 0)
         li = linear_e.get(l, 1e-10)
@@ -129,7 +132,7 @@ def _plot_gradient_evolution(grad_log: dict) -> None:
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "gradient_norms_evolution.png"), dpi=150)
     plt.close()
-    print(f"\n  ✓ Saved gradient_norms_evolution.png")
+    print(f"\n  [OK] Saved gradient_norms_evolution.png")
 
 
 def _plot_gradient_ratio(grad_log: dict) -> None:
@@ -158,7 +161,7 @@ def _plot_gradient_ratio(grad_log: dict) -> None:
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "gradient_ratio.png"), dpi=150)
     plt.close()
-    print(f"  ✓ Saved gradient_ratio.png")
+    print(f"  [OK] Saved gradient_ratio.png")
 
 
 if __name__ == "__main__":
