@@ -16,6 +16,9 @@ Usage:
 import argparse
 import time
 import os
+import sys
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 
 def banner(title: str) -> None:
@@ -69,7 +72,7 @@ def run_all(args):
 
     elapsed = time.time() - start
     print(f"\n{'='*60}")
-    print(f"  ✅ All experiments complete in {elapsed:.1f}s")
+    print(f"  [DONE] All experiments complete in {elapsed:.1f}s")
     print(f"  📁 Results saved to ./results/")
     print(f"\n  Files generated:")
     for f in sorted(os.listdir("results")):
