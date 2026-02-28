@@ -72,7 +72,7 @@ Early layers of the linear model are barely updating. The network has collapsed:
 ## Setup
 
 ```bash
-git clone https://github.com/your-username/relu-experiment.git
+git clone https://github.com/Emmimal/relu-experiment/.git
 cd relu-experiment
 pip install -r requirements.txt
 ```
