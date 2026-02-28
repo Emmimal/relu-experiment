@@ -11,6 +11,9 @@ Produces:
 """
 
 import os
+import sys
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 import torch
 import torch.nn as nn
 import numpy as np
@@ -19,9 +22,9 @@ import matplotlib.pyplot as plt
 from models import MLPWithActivation
 from utils  import init_for_activation, get_mnist_loaders, train_one_epoch, evaluate
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Config
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 ACTIVATIONS = ["none", "sigmoid", "tanh", "relu", "leaky_relu", "gelu"]
 EPOCHS      = 20
 BATCH_SIZE  = 64
@@ -92,27 +95,27 @@ def run_activation_comparison():
         std_acc  = np.std(seed_test_accs)
         final_results[activation] = (mean_acc, std_acc)
         histories[activation] = seed_histories
-        print(f"  → Mean: {mean_acc:.2f}% ± {std_acc:.2f}%\n")
+        print(f"  -> Mean: {mean_acc:.2f}% +/- {std_acc:.2f}%\n")
 
-    # ── Print summary table ───────────────────────────────────────
+    # -- Print summary table ---------------------------------------
     print(f"\n{'='*60}")
-    print(f"  {'Activation':<15} {'Test Acc (mean ± std)'}")
-    print("  " + "─" * 40)
+    print(f"  {'Activation':<15} {'Test Acc (mean +/- std)'}")
+    print("  " + "-" * 40)
     for act in ACTIVATIONS:
         mean, std = final_results[act]
-        print(f"  {DISPLAY_NAMES[act]:<15} {mean:.2f}% ± {std:.2f}%")
+        print(f"  {DISPLAY_NAMES[act]:<15} {mean:.2f}% +/- {std:.2f}%")
 
-    # ── Save text results ─────────────────────────────────────────
-    with open(os.path.join(RESULTS_DIR, "activations_comparison_results.txt"), "w") as f:
+    # -- Save text results -----------------------------------------
+    with open(os.path.join(RESULTS_DIR, "activations_comparison_results.txt"), "w", encoding="utf-8") as f:
         f.write("Activation Function Comparison Results\n")
         f.write("="*50 + "\n\n")
         f.write(f"{'Activation':<15} {'Mean Test Acc':<20} {'Std Dev'}\n")
-        f.write("─"*45 + "\n")
+        f.write("-"*45 + "\n")
         for act in ACTIVATIONS:
             mean, std = final_results[act]
-            f.write(f"{DISPLAY_NAMES[act]:<15} {mean:.2f}%               ±{std:.2f}%\n")
+            f.write(f"{DISPLAY_NAMES[act]:<15} {mean:.2f}%               +/-{std:.2f}%\n")
 
-    # ── Plot learning curves ──────────────────────────────────────
+    # -- Plot learning curves --------------------------------------
     _plot_learning_curves(histories)
     _plot_final_accuracy_bar(final_results)
 
@@ -143,7 +146,7 @@ def _plot_learning_curves(histories: dict) -> None:
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "activations_learning_curves.png"), dpi=150)
     plt.close()
-    print(f"\n  ✓ Saved activations_learning_curves.png")
+    print(f"\n  [OK] Saved activations_learning_curves.png")
 
 
 def _plot_final_accuracy_bar(final_results: dict) -> None:
@@ -170,7 +173,7 @@ def _plot_final_accuracy_bar(final_results: dict) -> None:
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "activations_comparison.png"), dpi=150)
     plt.close()
-    print(f"  ✓ Saved activations_comparison.png")
+    print(f"  [OK] Saved activations_comparison.png")
 
 
 if __name__ == "__main__":
