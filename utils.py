@@ -13,9 +13,9 @@ from typing import Dict, List, Tuple
 import numpy as np
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Weight Initialization
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def init_kaiming(model: nn.Module) -> nn.Module:
     """
@@ -48,9 +48,9 @@ def init_for_activation(model: nn.Module, activation: str) -> nn.Module:
     return init_xavier(model)
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Data Loading
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def get_mnist_loaders(
     batch_size: int = 64,
@@ -72,9 +72,9 @@ def get_mnist_loaders(
     return train_loader, test_loader
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Training & Evaluation
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def train_one_epoch(
     model: nn.Module,
@@ -143,9 +143,9 @@ def evaluate(
     return total_loss / total, 100.0 * correct / total
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Gradient Norm Snapshot (single backward pass)
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def log_gradient_norms(model: nn.Module) -> Dict[str, float]:
     """
@@ -161,9 +161,9 @@ def log_gradient_norms(model: nn.Module) -> Dict[str, float]:
 
 def print_gradient_norms(norms: Dict[str, float], model_name: str = "") -> None:
     """Pretty-print gradient norm table."""
-    header = f"\n{'─'*50}\nGradient Norms — {model_name}\n{'─'*50}"
+    header = f"\n{'-'*50}\nGradient Norms — {model_name}\n{'-'*50}"
     print(header)
     for layer, norm in norms.items():
-        bar = "█" * min(int(norm * 5000), 40)
+        bar = "|" * min(int(norm * 5000), 40)
         print(f"  {layer:<25} {norm:.6f}  {bar}")
     print()
