@@ -11,14 +11,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # 1. MNIST Models (5-layer)
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 class MLPWithReLU(nn.Module):
     """
     5-layer MLP with ReLU activations.
-    Architecture: 784 → 512 → 256 → 128 → 64 → 10
+    Architecture: 784 -> 512 -> 256 -> 128 -> 64 -> 10
     """
     def __init__(self):
         super().__init__()
@@ -41,7 +41,7 @@ class MLPLinear(nn.Module):
     """
     5-layer MLP WITHOUT activation functions.
     Mathematically equivalent to a single linear layer.
-    Architecture: 784 → 512 → 256 → 128 → 64 → 10
+    Architecture: 784 -> 512 -> 256 -> 128 -> 64 -> 10
     """
     def __init__(self):
         super().__init__()
@@ -60,9 +60,9 @@ class MLPLinear(nn.Module):
         return self.fc5(x)
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # 2. Variable-Depth Linear Model (for depth sweep)
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 class DeepLinearMLP(nn.Module):
     """
@@ -114,9 +114,9 @@ class DeepReLUMLP(nn.Module):
         return x
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # 3. 2D Models (for two-moons decision boundary)
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 class TwoD_ReLU(nn.Module):
     """3 hidden layers, ReLU, 2D input — for two-moons visualization."""
@@ -148,9 +148,9 @@ class TwoD_Linear(nn.Module):
         return self.net(x)
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # 4. Multi-activation variants (for activation comparison)
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 ACTIVATION_MAP = {
     "relu":        nn.ReLU(),
