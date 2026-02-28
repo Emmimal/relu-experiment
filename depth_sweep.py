@@ -11,6 +11,9 @@ Produces:
 """
 
 import os
+import sys
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 import torch
 import torch.nn as nn
 import numpy as np
@@ -19,9 +22,9 @@ import matplotlib.pyplot as plt
 from models import DeepLinearMLP, DeepReLUMLP
 from utils  import init_xavier, init_kaiming, get_mnist_loaders, train_one_epoch, evaluate
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Config
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 DEPTHS      = [1, 2, 3, 5, 10]
 HIDDEN_SIZE = 256
 EPOCHS      = 15          # Enough to converge; linear models plateau fast
@@ -54,7 +57,7 @@ def run_depth_sweep():
         for seed in range(NUM_SEEDS):
             torch.manual_seed(seed)
 
-            # ── Linear model ─────────────────────────────────────
+            # -- Linear model -------------------------------------
             model_lin = init_xavier(DeepLinearMLP(depth, HIDDEN_SIZE)).to(DEVICE)
             opt_lin   = torch.optim.Adam(model_lin.parameters(), lr=LR)
 
@@ -63,7 +66,7 @@ def run_depth_sweep():
             _, lin_acc = evaluate(model_lin, test_loader, criterion, DEVICE)
             linear_accs.append(lin_acc)
 
-            # ── ReLU model ───────────────────────────────────────
+            # -- ReLU model ---------------------------------------
             model_relu = init_kaiming(DeepReLUMLP(depth, HIDDEN_SIZE)).to(DEVICE)
             opt_relu   = torch.optim.Adam(model_relu.parameters(), lr=LR)
 
@@ -77,10 +80,10 @@ def run_depth_sweep():
         linear_results[depth] = linear_accs
         relu_results[depth]   = relu_accs
 
-    # ── Print Summary Table ───────────────────────────────────────
+    # -- Print Summary Table ---------------------------------------
     print(f"\n{'='*60}")
-    print(f"  {'Depth':<8} {'Linear Acc (mean±std)':<25} {'ReLU Acc (mean±std)':<25}")
-    print("  " + "─" * 55)
+    print(f"  {'Depth':<8} {'Linear Acc (mean+/-std)':<25} {'ReLU Acc (mean+/-std)':<25}")
+    print("  " + "-" * 55)
 
     lines = []
     for depth in DEPTHS:
@@ -88,20 +91,20 @@ def run_depth_sweep():
         l_std  = np.std(linear_results[depth])
         r_mean = np.mean(relu_results[depth])
         r_std  = np.std(relu_results[depth])
-        line = f"  {depth:<8} {l_mean:.2f}% ± {l_std:.2f}%          {r_mean:.2f}% ± {r_std:.2f}%"
+        line = f"  {depth:<8} {l_mean:.2f}% +/- {l_std:.2f}%          {r_mean:.2f}% +/- {r_std:.2f}%"
         print(line)
         lines.append(line)
 
-    # ── Save text ─────────────────────────────────────────────────
-    with open(os.path.join(RESULTS_DIR, "depth_sweep_results.txt"), "w") as f:
+    # -- Save text -------------------------------------------------
+    with open(os.path.join(RESULTS_DIR, "depth_sweep_results.txt"), "w", encoding="utf-8") as f:
         f.write("Depth Sweep Results\n")
         f.write("="*60 + "\n")
-        f.write(f"{'Depth':<8} {'Linear Acc (mean±std)':<28} {'ReLU Acc (mean±std)'}\n")
-        f.write("─"*60 + "\n")
+        f.write(f"{'Depth':<8} {'Linear Acc (mean+/-std)':<28} {'ReLU Acc (mean+/-std)'}\n")
+        f.write("-"*60 + "\n")
         for line in lines:
             f.write(line.strip() + "\n")
 
-    # ── Plot ──────────────────────────────────────────────────────
+    # -- Plot ------------------------------------------------------
     _plot_depth_sweep(DEPTHS, linear_results, relu_results)
 
 
@@ -137,13 +140,13 @@ def _plot_depth_sweep(depths, linear_results, relu_results):
     # Show logistic regression baseline
     ax.axhline(y=92.0, color="#F44336", linewidth=0.8, linestyle=":",
                alpha=0.5, label="Logistic Regression baseline")
-    ax.text(depths[0] + 0.1, 92.3, "Logistic regression baseline ≈ 92%",
+    ax.text(depths[0] + 0.1, 92.3, "Logistic regression baseline ~ 92%",
             fontsize=8, color="#888")
 
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "depth_sweep.png"), dpi=150)
     plt.close()
-    print(f"\n  ✓ Saved depth_sweep.png")
+    print(f"\n  [OK] Saved depth_sweep.png")
 
 
 if __name__ == "__main__":
