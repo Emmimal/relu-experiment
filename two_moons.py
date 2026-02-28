@@ -5,14 +5,17 @@ Trains ReLU and linear MLPs on the two-moons synthetic dataset,
 then plots their decision boundaries side by side.
 
 This is the visualization that makes the difference concrete:
-- Linear model → straight line (fails on non-convex data)
-- ReLU model   → curved boundary (wraps around each crescent)
+- Linear model -> straight line (fails on non-convex data)
+- ReLU model   -> curved boundary (wraps around each crescent)
 
 Produces:
   - results/decision_boundary.png
 """
 
 import os
+import sys
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 import numpy as np
 import torch
 import torch.nn as nn
@@ -40,7 +43,7 @@ def run_two_moons():
     torch.manual_seed(SEED)
     np.random.seed(SEED)
 
-    # ── Data ──────────────────────────────────────────────────────
+    # -- Data ------------------------------------------------------
     X, y = make_moons(n_samples=1200, noise=0.2, random_state=SEED)
     scaler = StandardScaler()
     X = scaler.fit_transform(X)
@@ -53,7 +56,7 @@ def run_two_moons():
     X_test_t  = torch.FloatTensor(X_test).to(DEVICE)
     y_test_t  = torch.LongTensor(y_test).to(DEVICE)
 
-    # ── Train models ──────────────────────────────────────────────
+    # -- Train models ----------------------------------------------
     model_relu   = init_kaiming(TwoD_ReLU()).to(DEVICE)
     model_linear = init_xavier(TwoD_Linear()).to(DEVICE)
     criterion    = nn.CrossEntropyLoss()
@@ -66,7 +69,7 @@ def run_two_moons():
     print(f"\n  ReLU model test accuracy:   {relu_acc:.1f}%")
     print(f"  Linear model test accuracy: {linear_acc:.1f}%")
 
-    # ── Plot ──────────────────────────────────────────────────────
+    # -- Plot ------------------------------------------------------
     _plot_decision_boundaries(
         model_relu, model_linear,
         X, y, X_test, y_test,
@@ -138,9 +141,9 @@ def _plot_decision_boundaries(model_relu, model_linear, X, y, X_test, y_test,
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "decision_boundary.png"), dpi=150)
     plt.close()
-    print(f"\n  ✓ Saved decision_boundary.png")
-    print(f"    → Linear boundary is a straight line; misclassifies many points")
-    print(f"    → ReLU boundary curves around each crescent shape")
+    print(f"\n  [OK] Saved decision_boundary.png")
+    print(f"    -> Linear boundary is a straight line; misclassifies many points")
+    print(f"    -> ReLU boundary curves around each crescent shape")
 
 
 if __name__ == "__main__":
