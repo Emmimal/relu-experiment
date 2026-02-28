@@ -12,6 +12,9 @@ Matches the exact experiment described in the article.
 """
 
 import os
+import sys
+if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8")
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
@@ -22,9 +25,9 @@ from utils  import (init_kaiming, init_xavier,
                     get_mnist_loaders, train_one_epoch,
                     evaluate, print_gradient_norms)
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Config
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 EPOCHS     = 20
 BATCH_SIZE = 64
 LR         = 1e-3
@@ -41,31 +44,31 @@ def run_experiment():
     print(f"  Device: {DEVICE}")
     print(f"{'='*60}\n")
 
-    # ── Data ─────────────────────────────────────────────────────
+    # -- Data -----------------------------------------------------
     train_loader, test_loader = get_mnist_loaders(BATCH_SIZE)
 
-    # ── Models ───────────────────────────────────────────────────
+    # -- Models ---------------------------------------------------
     model_relu   = init_kaiming(MLPWithReLU()).to(DEVICE)
     model_linear = init_xavier(MLPLinear()).to(DEVICE)
 
     print(f"ReLU   model parameters: {sum(p.numel() for p in model_relu.parameters()):,}")
     print(f"Linear model parameters: {sum(p.numel() for p in model_linear.parameters()):,}\n")
 
-    # ── Optimizers & Loss ────────────────────────────────────────
+    # -- Optimizers & Loss ----------------------------------------
     opt_relu   = torch.optim.Adam(model_relu.parameters(),   lr=LR)
     opt_linear = torch.optim.Adam(model_linear.parameters(), lr=LR)
     criterion  = nn.CrossEntropyLoss()
 
-    # ── Logging ──────────────────────────────────────────────────
+    # -- Logging --------------------------------------------------
     history = {
         "relu":   {"train_loss": [], "train_acc": [], "test_loss": [], "test_acc": []},
         "linear": {"train_loss": [], "train_acc": [], "test_loss": [], "test_acc": []},
     }
     grad_norms_at_target = {}
 
-    # ── Training Loop ────────────────────────────────────────────
+    # -- Training Loop --------------------------------------------
     print(f"{'Epoch':<6} {'ReLU Loss':<12} {'ReLU Acc%':<12} {'Lin Loss':<12} {'Lin Acc%':<12}")
-    print("─" * 56)
+    print("-" * 56)
 
     for epoch in range(1, EPOCHS + 1):
         log_grads = (epoch == GRAD_LOG_EPOCH)
@@ -96,11 +99,11 @@ def run_experiment():
         if log_grads:
             grad_norms_at_target["relu"]   = relu_grads
             grad_norms_at_target["linear"] = lin_grads
-            print(f"\n  ↳ Gradient norms captured at epoch {GRAD_LOG_EPOCH}")
+            print(f"\n  -> Gradient norms captured at epoch {GRAD_LOG_EPOCH}")
             print_gradient_norms(relu_grads,  "ReLU Model")
             print_gradient_norms(lin_grads,   "Linear Model")
 
-    # ── Final Results ────────────────────────────────────────────
+    # -- Final Results --------------------------------------------
     print(f"\n{'='*60}")
     print("  Final Results")
     print(f"{'='*60}")
@@ -113,8 +116,8 @@ def run_experiment():
     print(f"    Test  accuracy : {history['linear']['test_acc'][-1]:.1f}%")
     print(f"    Final train loss: {history['linear']['train_loss'][-1]:.4f}")
 
-    # ── Save Text Results ─────────────────────────────────────────
-    with open(os.path.join(RESULTS_DIR, "mnist_results.txt"), "w") as f:
+    # -- Save Text Results -----------------------------------------
+    with open(os.path.join(RESULTS_DIR, "mnist_results.txt"), "w", encoding="utf-8") as f:
         f.write("MNIST Experiment Results\n")
         f.write("="*40 + "\n\n")
         f.write("Epoch | ReLU Loss | ReLU Acc% | Lin Loss | Lin Acc%\n")
@@ -130,7 +133,7 @@ def run_experiment():
         f.write(f"  ReLU Model:   {history['relu']['test_acc'][-1]:.2f}%\n")
         f.write(f"  Linear Model: {history['linear']['test_acc'][-1]:.2f}%\n")
 
-    # ── Plots ─────────────────────────────────────────────────────
+    # -- Plots -----------------------------------------------------
     _plot_loss_curves(history)
     _plot_accuracy_curves(history)
     if grad_norms_at_target:
@@ -139,9 +142,9 @@ def run_experiment():
     print(f"\n  Plots saved to ./{RESULTS_DIR}/")
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 # Plotting helpers
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 
 def _plot_loss_curves(history: dict) -> None:
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -162,14 +165,14 @@ def _plot_loss_curves(history: dict) -> None:
     # Annotate plateau
     final_lin_loss = history["linear"]["train_loss"][-1]
     ax.axhline(y=final_lin_loss, color="#F44336", linewidth=0.8, linestyle=":", alpha=0.6)
-    ax.annotate(f"Linear plateau ≈ {final_lin_loss:.2f}",
+    ax.annotate(f"Linear plateau ~ {final_lin_loss:.2f}",
                 xy=(EPOCHS * 0.6, final_lin_loss + 0.05),
                 color="#F44336", fontsize=9)
 
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "loss_curves.png"), dpi=150)
     plt.close()
-    print(f"  ✓ Saved loss_curves.png")
+    print(f"  [OK] Saved loss_curves.png")
 
 
 def _plot_accuracy_curves(history: dict) -> None:
@@ -192,7 +195,7 @@ def _plot_accuracy_curves(history: dict) -> None:
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, "accuracy_curves.png"), dpi=150)
     plt.close()
-    print(f"  ✓ Saved accuracy_curves.png")
+    print(f"  [OK] Saved accuracy_curves.png")
 
 
 def _plot_gradient_norms(grad_norms_at_target: dict, epoch: int) -> None:
@@ -235,9 +238,9 @@ def _plot_gradient_norms(grad_norms_at_target: dict, epoch: int) -> None:
     plt.tight_layout()
     plt.savefig(os.path.join(RESULTS_DIR, f"gradient_norms_epoch{epoch}.png"), dpi=150)
     plt.close()
-    print(f"  ✓ Saved gradient_norms_epoch{epoch}.png")
+    print(f"  [OK] Saved gradient_norms_epoch{epoch}.png")
 
 
-# ─────────────────────────────────────────────
+# ---------------------------------------------
 if __name__ == "__main__":
     run_experiment()
